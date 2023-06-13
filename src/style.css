@@ -26,7 +26,7 @@ body {
     background-color: #292524;
     color: #fafaf9;
     font-family: "Sono", sans-serif;
-    padding: 40px;
+    padding: 40px 64px 0px;
 }
 
 .hidden {
@@ -40,6 +40,12 @@ body {
     font-weight: 600;
     margin-top: 24px
 }
+
+.disputed {
+    color: #ef4444;
+    font-weight: 600;
+    margin-right: 10px
+}
 #root {
     max-width: 1000px;
     margin: 0 auto;
@@ -49,13 +55,19 @@ main {
     display: grid;
     grid-template-columns: 250px 1fr;
     gap: 48px;
+    height: clac(100vh - 68px - 40px - 48px);
 }
 
 @media (max-width: 900px) {
     .main {
         grid-template-columns: 1fr;
-    }
-    
+        height: auto;
+    }   
+}
+
+section {
+    overflow: scroll;
+    padding-bottom: 40px
 }
 
 h1 {
@@ -164,6 +176,10 @@ ul {
     background-color: #292524;
 }
 
+.vote-buttons button:disabled {
+    background-color: #292524;
+}
+
 .source:link, .source:visited {
     color: #a8a29e;
     text-decoration: none;
@@ -210,7 +226,7 @@ ul {
 
 @media (max-width: 1000px) {
     body {
-        padding: 32px 48px;
+        /* padding: 32px 48px; */
     }
 
     .fact-form {
@@ -220,6 +236,22 @@ ul {
 
     .fact-form input, .fact-form select {
         width: auto;
+    }
+}
+
+@media (max-width: 600px) {
+    #root {
+        padding: 24px;
+    }
+    .header {
+        flex-direction: column;
+        gap: 16px;
+    }
+    .fact-form {
+        padding: 16px;
+    }
+    .fact {
+        padding 12px 16px;
     }
 }
 

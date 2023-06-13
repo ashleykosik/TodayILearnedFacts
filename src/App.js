@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import supabase from "./supabase"
 import './style.css';
-
+import {CATEGORIES} from './data.js'
 
 function App() {
   const [showForm, setShowForm] = useState(false)
@@ -28,16 +28,26 @@ function App() {
     setIsLoading(false)
   }
   getFacts()
- }, [currentCategory])
+ }, 
+ [currentCategory]
+ );
 
   return (
     <> 
+    {/* enabled use state defined above */}
   <Header showForm={showForm} setShowForm={setShowForm}/>
+
 {/* use state variable */}
-{showForm ? <NewFactForm setFacts={setFacts} setShowForm={setShowForm}/> : null}
+{showForm ? (
+  <NewFactForm setFacts={setFacts} setShowForm={setShowForm}/> 
+  ) : null}
+
 <main> 
-<CategoryFilter setCurrentCategory={setCurrentCategory}>
-  {isLoading ? <Loader/> : <FactList facts={facts}/>}
+<CategoryFilter setCurrentCategory={setCategory}/>
+
+  {isLoading ? <Loader/> 
+    : <FactList facts={facts}/>}
+
 <FactList facts={facts} setFacts={setFacts}/>
 </main>
 </>
@@ -107,11 +117,11 @@ function NewFactForm({setFacts, setShowForm}){
       .from('facts')
       .insert([{text, source, category}])
       .select()
-      
+
       setIsUploading(false)
 
     //add the new fact to UI / state
-      setFacts(facts => [newFact(0), ...facts])
+    if (!error) setFacts(facts => [newFact(0), ...facts])
 
     //reset input fields to empty
      setText('')
@@ -132,7 +142,7 @@ function NewFactForm({setFacts, setShowForm}){
   value={text} onChange={(e) => setText(e.target.value)} disabled={isUploading}/>
   <span>{200 - textLength}</span>
   <input value={source} type="text" placeholder="Trustworthy source" onChange={(e) => setSource(e.target.value)} disabled={isUploading}/>
-  <select value={category} onChange={ e => setCategroy(e.target.value)} disabled={isUploading}> 
+  <select value={category} onChange={ e => setCategory(e.target.value)} disabled={isUploading}> 
       <option value="">Choose Category:</option>
       {CATEGORIES.map((cat) => (
       <option key={cat.name} value={cat.name}>{cat.name.toUpperCase()}</option>))}
@@ -163,24 +173,40 @@ function FactList({facts}) {
   
   return (
   <section><ul className="facts-list">{
-  facts.map(fact => (<Fact key={fact.id} fact={fact}/>))}
+  facts.map(fact => (<Fact key={fact.id} fact={fact} setFacts={setFacts}/>))}
   </ul>
-  <p>There are{facts.length} in the database</p>
+  <p>There are {facts.length} in the database</p>
   </section>
 )}
 
-function Fact({fact}){
+function Fact({fact, setFacts}){
+const [isUpdating, setIsUpdating] = useState(false);
+const isDisputed = fact.votesInteresting + fact.votesMindblowing < fact.votesFalse
+
+  async function handleVote(columnName) {
+    setIsUpdating(true);
+    const {data: updatedFact, error} = await supabase
+    .from('facts')
+    .update({[columnName]: fact[columnName] + 1})
+    .eq('id', fact.id)
+    .select()
+  setIsUpdating(false);
+
+    if (!error) setFacts(facts => fact.map(f => f.id  === fact.id ? updatedFact[0] : f ))
+  }
 
   return (
   <li className="fact">
-  <p>{fact.text}
+  <p>
+    {isDisputed ? <span className="disputed"> [DISPUTED] </span> : null}
+    {fact.text}
       <a className="source" href={fact.source} target="_blank">(Source)</a>
   </p>
-      <span className="tag" style={{backgroundColor: {CATEGORIES.find(cat => cat.name === fact.category).color,}}}>Technology</span>
+      <span className="tag" style={{backgroundColor: CATEGORIES.find(cat => cat.name === fact.category).color,}}>{fact.category}</span>
       <div className="vote-buttons"> 
-          <button>👍 {fact.votesInteresting}</button>
-          <button>🤯 {fact.votesMindblowing}</button>
-          <button>⛔️ {fact.votesFalse}</button>
+          <button onClick={() => handleVote("votesInteresting")} disabled={isUpdating}>👍 {fact.votesInteresting}</button>
+          <button onClick={() => handleVote("votesMindblowing")} disabled={isUpdating}>🤯 {fact.votesMindblowing}</button>
+          <button onClick={() => handleVote("votesFalse")} disabled={isUpdating}>⛔️ {fact.votesFalse}</button>
       </div>
 </li>
 )}
