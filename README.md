@@ -1,5 +1,6 @@
-![alt text](/Screen Shot 2023-06-17 at 4.05.37 PM.png "Today I Learned App Page")
-
+<a href="http://www.youtube.com/watch?feature=player_embedded&v=YOUTUBE_VIDEO_ID_HERE
+" target="_blank"><img src="Screen Shot 2023-06-17 at 4.05.37 PM.png" 
+alt="Today I Learned App Page" width="240" height="180" border="10" /></a>
 
 This is my first App created with React by following the Udemy course: Crash Course: Build a Full-Stack Web App in a Weekend!
 Starting with HTML, then CSS I learned a lot about flexbox and grid, 
