@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import supabase from "./supabase"
+import supabase from "./supabase";
 import './style.css';
-import {CATEGORIES} from './data.js'
+import {CATEGORIES} from './data.js';
 
 function App() {
   const [showForm, setShowForm] = useState(false)
@@ -19,7 +19,7 @@ function App() {
       if(currentCategory !== 'all')
       query = query.eq('category', currentCategory)
 
-    const { data: facts, error } = await supabase
+    const { data: facts, error } = await query
     .order('votesInteresting', {ascending: false})
     .limit(10)
 
@@ -46,9 +46,8 @@ function App() {
 <CategoryFilter setCurrentCategory={setCategory}/>
 
   {isLoading ? <Loader/> 
-    : <FactList facts={facts}/>}
+    : <FactList facts={facts} setFacts={setFacts}/>}
 
-<FactList facts={facts} setFacts={setFacts}/>
 </main>
 </>
   )
@@ -67,22 +66,22 @@ function Header({showForm, setShowForm}) {
   <header> 
   <div className="logo"> 
       <img src="logo.png" alt="Today I Learned logo"/>
-      <h1>${appTitle}</h1>
+      <h1>{appTitle}</h1>
   </div>
   <button className="btn btn-large btn-open" onClick={() => setShowForm(show => !show)}>{showForm ? 'Close' : 'Share A Fact'}</button>
 </header>
 )}
 
 
-function isValidHttpUrl(string) {
-  let url;
-  try {
-    url = new URL(string);
-  } catch (_) {
-    return false;
-  }
-  return url.protocol === "http:" || url.protocol === "https:";
-}
+// function isValidHttpUrl(string) {
+//   let url;
+//   try {
+//     url = new URL(string);
+//   } catch (_) {
+//     return false;
+//   }
+//   return url.protocol === "http:" || url.protocol === "https:";
+// }
 
 //creates controlled input field
 function NewFactForm({setFacts, setShowForm}){
@@ -94,9 +93,10 @@ function NewFactForm({setFacts, setShowForm}){
 
   async function handleSubmit(e) {
     e.preventDefault()
+    console.log(text, source, category)
 
     //check if data is valid
-    if(text && isValidHttpUrl(source) && category && textLength <= 200) {
+    if(text && source && category && textLength <= 200) {
 
     //create a new fact object
 
@@ -121,7 +121,7 @@ function NewFactForm({setFacts, setShowForm}){
       setIsUploading(false)
 
     //add the new fact to UI / state
-    if (!error) setFacts(facts => [newFact(0), ...facts])
+    if (!error) setFacts(facts => [newFact[0], ...facts])
 
     //reset input fields to empty
      setText('')
@@ -153,19 +153,20 @@ function NewFactForm({setFacts, setShowForm}){
 )}
 
 function CategoryFilter({setCurrentCategory}) {
+
   return <aside>
           <ul> 
           <li className="category"><button className="btn btn-all" onClick={()=>setCurrentCategory('all')}>All</button></li>
             {CATEGORIES.map(cat => (
             <li key={cat.name} className="category">
-              <button className="btn btn-cat" style={{backgroundColor: cat.color}} onClick={()=>setCurrentCategory('cat.name')}>{cat.name}</button>
+              <button className="btn btn-cat" style={{backgroundColor: cat.color}} onClick={()=>setCurrentCategory(cat.name)}>{cat.name}</button>
             </li>))}
           </ul>
         </aside>
-
 }
 
-function FactList({facts}) {
+function FactList({facts, setFacts}) {
+
   if(facts.length === 0) {
     return (
       <p className="message">No facts for this category yet! Create the first one now!</p>
@@ -175,13 +176,15 @@ function FactList({facts}) {
   <section><ul className="facts-list">{
   facts.map(fact => (<Fact key={fact.id} fact={fact} setFacts={setFacts}/>))}
   </ul>
-  <p>There are {facts.length} in the database</p>
+  <p>There are {facts.length} facts in the database</p>
   </section>
 )}
 
 function Fact({fact, setFacts}){
 const [isUpdating, setIsUpdating] = useState(false);
 const isDisputed = fact.votesInteresting + fact.votesMindblowing < fact.votesFalse
+
+
 
   async function handleVote(columnName) {
     setIsUpdating(true);
@@ -192,7 +195,7 @@ const isDisputed = fact.votesInteresting + fact.votesMindblowing < fact.votesFal
     .select()
   setIsUpdating(false);
 
-    if (!error) setFacts(facts => fact.map(f => f.id  === fact.id ? updatedFact[0] : f ))
+    if (!error) setFacts((facts) => facts.map(f => f.id  === fact.id ? updatedFact[0] : f ))
   }
 
   return (
@@ -202,7 +205,7 @@ const isDisputed = fact.votesInteresting + fact.votesMindblowing < fact.votesFal
     {fact.text}
       <a className="source" href={fact.source} target="_blank">(Source)</a>
   </p>
-      <span className="tag" style={{backgroundColor: CATEGORIES.find(cat => cat.name === fact.category).color,}}>{fact.category}</span>
+      <span className="tag " style={{backgroundColor: CATEGORIES.find(cat => cat.name === fact.category).color,}}>{fact.category}</span>
       <div className="vote-buttons"> 
           <button onClick={() => handleVote("votesInteresting")} disabled={isUpdating}>👍 {fact.votesInteresting}</button>
           <button onClick={() => handleVote("votesMindblowing")} disabled={isUpdating}>🤯 {fact.votesMindblowing}</button>

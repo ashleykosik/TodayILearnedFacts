@@ -7,10 +7,10 @@ factsList.innerHTML = "";
 
 loadFacts()
 async function loadFacts() {
-    const res = await fetch("https://xiyjasdypawekjajxzsg.supabase.co/rest/v1/facts", {
+    const res = await fetch("https://.supabase.co/rest/v1/facts", {
     headers: {
-        apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhpeWphc2R5cGF3ZWtqYWp4enNnIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODY0MzYwMjQsImV4cCI6MjAwMjAxMjAyNH0.Mzr1LTtW908-syn4UN4KaqKmRa1mnROAqnHotth9PwM",
-        authorization: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhpeWphc2R5cGF3ZWtqYWp4enNnIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODY0MzYwMjQsImV4cCI6MjAwMjAxMjAyNH0.Mzr1LTtW908-syn4UN4KaqKmRa1mnROAqnHotth9PwM"
+        apikey: "",
+        authorization: "Bearer "
     },
     })
     const data = await res.json();
